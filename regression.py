@@ -30,8 +30,8 @@ def mae(x, y, w):
 
 def grad_mse(x, y, w):
     grad_w = np.zeros(p)
-    for j in range(len(x)):
-        grad_w[i] = sum([e[0]-h(e[1], w, p)*((-e[1]**j)) for e in zip(y, x)]) / (2*len(y))
+    for j in range(len(w)):
+        grad_w[j] = sum([e[0]-h(e[1], w, p)*((-e[1]**j)) for e in zip(y, x)]) / (2*len(y))
     return grad_w
 
 y_pd = [h(xi, w, p) for xi in x_ds]
@@ -39,13 +39,13 @@ plt.plot(x_ds, y_pd)
 
 alpha = 0.007
 
-for i in range(100):
+for i in range(1000):
     grad_w = grad_mse(x_ds, y_ds, w)
     for j in range(len(w)):
         w[j] = w[j] - alpha*grad_w[j]
     loss = mse(x_ds, y_ds, w)
     i+=1
     y_pd = [h(xi, w, p) for xi in x_ds]
-    if i%10 == 0:
-        plt.plot (x_ds, y_pd)
+    if i%1000 == 0:
+        plt.plot (x_ds, y_pd, 'b')
 plt.show()
