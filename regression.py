@@ -42,7 +42,7 @@ def grad_mse_l1(x, y, w, lam):
 def grad_mse_l2(x, y, w, lam):
     grad_w = np.zeros(p)
     for j in range(len(w)):
-        grad_w[j] = sum([(e[0]-h(e[1], w, p))*(-e[1]**j) for e in zip(y, x)]) / (2*len(y)) + (lam / 2) * (2 * w[j])
+        grad_w[j] = sum([(e[0]-h(e[1], w, p))*(-e[1]**j) for e in zip(y, x)]) / (2*len(y)) + (lam / 2) * (sum([(2 * wi)*(wi**2) for wi in w]) / len(w))
     return grad_w
 
 def grad_mae_l1 (x, y, w, lam):
@@ -58,13 +58,14 @@ def grad_mae_l2 (x, y, w, lam):
 y_pd = [h(xi, w, p) for xi in x_ds]
 plt.plot(x_ds, y_pd)
 
-alpha = 0.7
+alpha = 0.07
 
 for i in range(10000):
-    grad_w = grad_mse_l1(x_ds, y_ds, w, lam)
+    print (i)
+    grad_w = grad_mse_l2(x_ds, y_ds, w, lam)
     for j in range(len(w)):
         w[j] = w[j] - alpha*grad_w[j]
-    loss = mse_l1(x_ds, y_ds, w, lam)
+    loss = mse_l2(x_ds, y_ds, w, lam)
     i+=1
     y_pd = [h(xi, w, p) for xi in x_ds]
     if i%1000 == 0:
