@@ -1,16 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import pandas as pd
 p = 4
 
 w=np.random.rand(p)
 
-def generate_data ():
-    x_ds = np.arange(0, 1, 0.05)
-    y_ds = [np.sin(2*i*np.pi) + np.random.normal(0, 0.2) for i in x_ds]
-    return x_ds, y_ds
-
-x_ds, y_ds = generate_data()
+path='df1.csv'
+df=pd.read_csv(path)
+x_ds=df['x'].values
+y_ds=df['y'].values
 plt.plot(x_ds, y_ds, '*')
 
 
@@ -46,9 +44,10 @@ for i in range(10000):
     update = momentum * past + alpha * grad_w
     for j in range(len(w)):
         w[j] = w[j] - update[j]
+    past=update
     loss = mse(x_ds, y_ds, w)
     i+=1
-    past=update
+    
     y_pd = [h(xi, w, p) for xi in x_ds]
     if i%1000 == 0:
         plt.plot (x_ds, y_pd, 'b')
