@@ -18,6 +18,9 @@ class RegressionExecuter:
         self.w = np.random.rand(self.p)
         return self.w
 
+    def set_w (self, w):
+        self.w = w
+
     def get_w(self):
         return self.w
 
@@ -63,17 +66,20 @@ class RegressionExecuter:
     def grad_mae(self, x, y):
         grad_w = np.zeros(self.p)
         for j in range(len(self.w)):
-            grad_w[j] = sum(-x[j]**j)
+            grad_w[j] = sum([((e[0] - self.h(e[1])) / abs(e[0] - self.h(e[1]))) * (-e[1]**j) for e in zip(y, x)]) / len (self.w)
+        return grad_w
 
     def grad_mae_l1 (self, x, y):
         grad_w = np.zeros(self.p)
         for j in range(len(self.w)):
-            grad_w[j] = sum(-x[j]**j)
+            grad_w[j] = (-xi**j) + (self.lam / 2) * (sum([((wi / abs(wi))) for wi in self.w]) / (len(self.w)))
+        return grad_w
 
     def grad_mae_l2 (self, x, y):
         grad_w = np.zeros(self.p)
         for j in range(len(self.w)):
-            grad_w[j] = sum(-x[j]**j)
+            grad_w[j] = sum([(-xi[j]**j) for xi in x]) / (2*len(y)) + (self.lam / 2) * (sum([(2 * wi) for wi in self.w]) / len(self.w))
+        return grad_w
 
     def predict_current_values (self, x):
         return [self.h(xi) for xi in x]
