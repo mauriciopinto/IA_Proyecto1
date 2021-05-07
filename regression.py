@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-p = 4
-
+p = 10
+lam = 1
 w=np.random.rand(p)
 
 def generate_data ():
-    x_ds = np.arange(0, 1, 0.05)
+    x_ds = np.arange(0, 1, 0.10)
     y_ds = [np.sin(2*i*np.pi) + np.random.normal(0, 0.2) for i in x_ds]
     return x_ds, y_ds
 
@@ -19,34 +19,59 @@ def h(x, w, p):
     for j in range(0,p):
         suma += w[j]*(x**j)
     return suma
-    #return 1/(1+np.exp((-w)*(x-p)))
 
-def mse(x, y, w):
-    return sum([(e[0]-h(e[1],w, p))**2 for e in zip(y,x)])/(2*len(y))
+def mse_l1(x, y, w, lam):
+    return sum([(e[0]-h(e[1],w, p))**2 for e in zip(y,x)])/(2*len(y)) + sum ([abs(wi) for wi in w]) * lam
 
-def mae(x, y, w):
-    return sum([abs(e[0]-h(e[1],w, p)) for e in zip(y,x)])/(2*len(y))
+def mse_l2(x, y, w, lam):
+    return sum([(e[0]-h(e[1],w, p))**2 for e in zip(y,x)])/(2*len(y)) + sum ([(wi)**2 for wi in w]) * lam
+
+def mae_l1(x, y, w, lam):
+    return sum([abs(e[0]-h(e[1],w, p)) for e in zip(y,x)])/(2*len(y)) + sum ([abs(wi) for wi in w]) * lam
+
+def mae_l2(x, y, w, lam):
+    return sum([abs(e[0]-h(e[1],w, p)) for e in zip(y,x)])/(2*len(y)) + sum ([(wi)**2 for wi in w]) * lam
 
 
-def grad_mse(x, y, w):
+def grad_mse_l1(x, y, w, lam):
     grad_w = np.zeros(p)
     for j in range(len(w)):
-        grad_w[j] = sum([(e[0]-h(e[1], w, p))*(-e[1]**j) for e in zip(y, x)]) / (2*len(y))
-        #print(grad_w[j])
+        grad_w[j] = sum([(e[0]-h(e[1], w, p))*(-e[1]**j) for e in zip(y, x)]) / (2*len(y)) + (lam / 2) * (sum([(abs(wi)*(wi / abs(wi))) for wi in w]) / (len(w)))
     return grad_w
+
+def grad_mse_l2(x, y, w, lam):
+    grad_w = np.zeros(p)
+    for j in range(len(w)):
+        grad_w[j] = sum([(e[0]-h(e[1], w, p))*(-e[1]**j) for e in zip(y, x)]) / (2*len(y)) + (lam / 2) * (sum([(2 * wi)*(wi**2) for wi in w]) / len(w))
+    return grad_w
+
+def grad_mae_l1 (x, y, w, lam):
+    grad_w = np.zeros(p)
+    for j in range(len(w)):
+        grad_w[j] = sum(-x[j]**j)
+
+def grad_mae_l2 (x, y, w, lam):
+    grad_w = np.zeros(p)
+    for j in range(len(w)):
+        grad_w[j] = sum(-x[j]**j)
 
 y_pd = [h(xi, w, p) for xi in x_ds]
 plt.plot(x_ds, y_pd)
 
-alpha = 0.7
+alpha = 0.07
 
 for i in range(10000):
-    grad_w = grad_mse(x_ds, y_ds, w)
+    print (i)
+    grad_w = grad_mse_l2(x_ds, y_ds, w, lam)
     for j in range(len(w)):
         w[j] = w[j] - alpha*grad_w[j]
-    loss = mse(x_ds, y_ds, w)
+    loss = mse_l2(x_ds, y_ds, w, lam)
     i+=1
     y_pd = [h(xi, w, p) for xi in x_ds]
     if i%1000 == 0:
-        plt.plot (x_ds, y_pd, 'b')
+        if i <= 9000:
+            plt.plot (x_ds, y_pd, 'b')
+        else:
+            plt.plot (x_ds, y_pd, 'r')
+
 plt.show()
